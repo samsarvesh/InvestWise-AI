@@ -194,8 +194,8 @@ export default function App() {
       {/* Navigation / Header */}
       <nav className="border-b border-white/40 dark:border-white/10 bg-white/60 dark:bg-black/60 backdrop-blur-2xl sticky top-0 z-50">
         <div className="max-w-[95%] mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => { setAnalysis(null); setActiveTab('search'); }}>
-            <div className="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center text-white font-bold">W</div>
+          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => { setAnalysis(null); setActiveTab('search'); }}>
+            <img src="/favicon.svg" alt="InvestWise AI Logo" className="w-8 h-8 rounded-lg shadow-sm" referrerPolicy="no-referrer" />
             <span className="font-bold text-xl tracking-tight text-slate-950 dark:text-white">InvestWise <span className="text-emerald-800 dark:text-emerald-400">AI</span></span>
           </div>
           
