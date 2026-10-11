@@ -30,22 +30,39 @@ export async function analyzeCompany(query: string): Promise<CompanyAnalysis> {
         }
         return data as CompanyAnalysis;
       }
+    } else {
+      try {
+        const errorData = await apiRes.json();
+        if (errorData?.error) {
+          console.warn("Backend error response:", errorData);
+          if (errorData.error.includes("GEMINI_API_KEY") || errorData.hint) {
+            throw new Error(
+              `${errorData.error} ${errorData.hint ? "(" + errorData.hint + ")" : ""}`
+            );
+          }
+        }
+      } catch (parseErr: any) {
+        if (parseErr?.message?.includes("GEMINI_API_KEY")) {
+          throw parseErr;
+        }
+      }
     }
-  } catch (backendErr) {
+  } catch (backendErr: any) {
+    if (backendErr?.message?.includes("GEMINI_API_KEY")) {
+      throw backendErr;
+    }
     console.warn("Backend /api/analyze failed, falling back to direct client-side model call:", backendErr);
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || apiKey.trim() === "" || apiKey === "undefined") {
     throw new Error(
-      "Gemini API Key is missing. If you deployed this app on Vercel, please make sure you have: 1. Added GEMINI_API_KEY under 'Project Settings' -> 'Environment Variables' in your Vercel Dashboard, and 2. Triggered a new Deployment (redeploy) so Vite can bundle the key during the build phase. (Client-side SPAs require environment variables to be set at build-time)."
+      "Gemini API Key is missing. In your Vercel Dashboard, go to Project Settings -> Environment Variables, add GEMINI_API_KEY with your Google Gemini API key, and click Deployments -> Redeploy."
     );
   }
 
   const attempts = [
-    { model: "gemini-3.7-flash", useSearch: true },
     { model: "gemini-2.5-flash", useSearch: true },
-    { model: "gemini-3.7-flash", useSearch: false },
     { model: "gemini-2.5-flash", useSearch: false },
   ];
 
@@ -58,9 +75,9 @@ export async function analyzeCompany(query: string): Promise<CompanyAnalysis> {
   "industry": "Specific industry (e.g. Cigarettes & Tobacco, Consumer Products, Semiconductors)",
   "isFund": false,
   "sectorPerformance": "Sector average return or performance (e.g. +1.4%)",
-  "sectorPeRatio": "Sector average P/E ratio (e.g. 38.2)",
-  "sectorPbRatio": "Sector average P/B ratio (e.g. 8.5)",
-  "currentPrice": "Exact live / latest closing price with currency symbol (e.g. ₹425.80 or $232.50 or 25,050.20 for Nifty 50)",
+  "sectorPeRatio": "Sector average P/E ratio (e.g. 28.2)",
+  "sectorPbRatio": "Sector average P/B ratio (e.g. 4.5)",
+  "currentPrice": "Exact live / latest closing price with currency symbol (e.g. ₹266.00 or $232.50 or 25,050.20 for Nifty 50)",
   "pbRatio": "Price to Book (P/B) ratio (e.g. 7.4)",
   "bookValue": "Book value per share with currency (e.g. ₹58.40 or $46.20)",
   "roe": "Return on Equity % (e.g. 29.5%)",
@@ -203,8 +220,9 @@ export async function analyzeCompany(query: string): Promise<CompanyAnalysis> {
       console.log(`Attempting Gemini analysis with model: ${attempt.model} (Search: ${attempt.useSearch})`);
       
       const config: any = {
-        temperature: 0.0,
+        temperature: 0.1,
         responseMimeType: "application/json",
+        thinkingConfig: { thinkingBudget: 0 },
       };
 
       if (attempt.useSearch) {
