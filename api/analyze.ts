@@ -1,4 +1,4 @@
-import { runCompanyAnalysis } from "../src/server/analysisEngine";
+import { runCompanyAnalysis } from "./_analysisEngine";
 
 export default async function handler(req: any, res: any) {
   // Set CORS headers
