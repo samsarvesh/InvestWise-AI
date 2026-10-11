@@ -1,0 +1,8 @@
+{
+  "name": "InvestWise AI",
+  "description": "Advanced investment assistant for analyzing stocks and mutual funds with real-time market data and AI-driven insights.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
